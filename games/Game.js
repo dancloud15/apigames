@@ -18,5 +18,5 @@ const Game = connection.define('games',{
         allowNull: false
     }
 });
-Game.sync({force:false}).then(()=>{});
+
 module.exports = Game;

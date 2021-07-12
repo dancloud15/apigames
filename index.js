@@ -20,13 +20,10 @@ connection
     });
 
 app.get("/games",(req, res) =>{
-    Game.findOne({
-        where:{
-            game_id:3
-        }
+    Game.findAll({raw:true
     }).then(games =>{
         res.statusCode=200;
-        res.json({game:Game.find});
+        res.json({game:games});
     }).catch(err =>{
         res.statusCode=400;
         res.json({game:err});
