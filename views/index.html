@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Games</title>
+</head>
+<body>
+    <hr>
+    <h4>Lista de Games</h4>
+    <ul id="listaGames"></ul>
+    <hr>
+    <h4>Novo Game</h4>
+    <input type="text" name="game_title" id="game_title" placeholder="Título"><br>
+    <input type="number" name="game_year" id="game_year" placeholder="Ano"><br>
+    <input type="number" name="game_price" id="game_price" placeholder="Preço"><br>
+    <button onclick="createGame()"title="Criar">Criar</button><br>
+    <hr>
+    <h4>Editar Game</h4>
+    <input type="text" name="game_id_edit" id="game_id_edit" placeholder="ID" readonly><br>
+    <input type="text" name="game_title_edit" id="game_title_edit" placeholder="Título"><br>
+    <input type="number" name="game_year_edit" id="game_year_edit" placeholder="Ano"><br>
+    <input type="number" name="game_price_edit" id="game_price_edit" placeholder="Preço"><br>
+    <button onclick="updateGame()">Salvar</button><br>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    function createGame(){
+        let inputTitle = document.getElementById("game_title");
+        let inputYear = document.getElementById("game_year");
+        let inputPrice = document.getElementById("game_price");
+
+        let game ={
+            game_title:inputTitle.value,
+            game_year:inputYear.value,
+            game_price:inputPrice.value
+        }
+
+        axios.post("http://localhost:45679/game",game).then(response =>{
+            if(response.status== 200){
+                alert("sucesso")
+            }
+        }).catch(err=>{
+            console.log(err);
+        });
+    }
+
+    function deleteGame(listItem){
+        let id = listItem.getAttribute("data-id");
+        axios.delete("http://localhost:45679/game/"+id).then(response =>{
+            alert("Game Deletado");
+        }).catch(err=>{
+            console.log(err);
+        });
+    }
+
+    function updateGame(){
+        let inputTitle = document.getElementById("game_title_edit");
+        let inputYear = document.getElementById("game_year_edit");
+        let inputPrice = document.getElementById("game_price_edit");
+        let id = document.getElementById("game_id_edit").value;
+        console.log("criou campos");
+        let game ={
+            game_title:inputTitle.value,
+            game_year:inputYear.value,
+            game_price:inputPrice.value
+        }
+        console.log(game); 
+
+        axios.put("http://localhost:45679/game/"+id,game).then(response =>{
+            console.log("chamou put");
+            if(response.status== 200){
+                alert("sucesso")
+            }
+        }).catch(err=>{
+            console.log(err);
+        });
+    }
+
+    function loadForm(listItem){
+        let id = listItem.getAttribute("data-id");
+        let title = listItem.getAttribute("data-title");
+        let year = listItem.getAttribute("data-year");
+        let price = listItem.getAttribute("data-price");
+
+        document.getElementById("game_id_edit").value =id;
+        document.getElementById("game_title_edit").value =title;
+        document.getElementById("game_price_edit").value =price;
+        document.getElementById("game_year_edit").value =year;
+
+
+    }
+
+    axios.get("http://localhost:45679/games").then(response => {
+        var games = response.data;
+        var list = document.getElementById("listaGames");
+    
+
+        games.forEach(game => {
+            var item = document.createElement("li");
+
+            item.setAttribute("data-id",game.game_id);
+            item.setAttribute("data-title",game.game_title);
+            item.setAttribute("data-year",game.game_year);
+            item.setAttribute("data-price",game.game_price);
+
+            item.innerHTML = game.game_title;
+
+            list.appendChild(item);
+
+            var deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = "Deletar";
+            deleteBtn.addEventListener("click",function(){
+                deleteGame(item)
+            })
+            var editBtn = document.createElement("button");
+            editBtn.innerHTML = "Editar";
+            editBtn.addEventListener("click",function(){
+                loadForm(item)
+            })
+
+            item.appendChild(deleteBtn);
+            item.appendChild(editBtn);
+
+            list.appendChild(item);
+        });
+        console.log("done");
+    }).catch(err =>{
+        console.log(err);
+    });
+</script>
+</html>
